@@ -1,2 +1,1 @@
-# Cloudinary-Handlers
- Cloudinary Handlers
+# Cloudinary Handlers
