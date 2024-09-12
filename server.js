@@ -15,6 +15,7 @@ const pushToCloudinary = async ({ resource_type, folder, content }) => {
             const { public_id } = result;
             return public_id;
         };
+        throw new Error("Failed to push to Cloudinary");
     } catch (err) {
         console.log(err);
         return null;
@@ -23,20 +24,13 @@ const pushToCloudinary = async ({ resource_type, folder, content }) => {
 
 async function popFromCloudinary(path, mediaType) {
     try {
-        const generateSHA1 = data => {
-            const hash = createHash("sha1");
-            hash.update(data);
-            return hash.digest("hex");
-        };
-
         const data = new FormData();
         data.append('public_id', path);
-        data.append('signature', generateSHA1(`public_id=${path}&timestamp=${new Date().getTime()}${process.env.CLOUDINARY_API_SECRET}`));
+        data.append('signature', createHash("sha1").update(`public_id=${path}&timestamp=${new Date().getTime()}${process.env.CLOUDINARY_API_SECRET}`).digest("hex"));
         data.append('api_key', process.env.CLOUDINARY_API_KEY);
         data.append('timestamp', new Date().getTime());
 
         const res = await fetch(`https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/${mediaType}/destroy`, { method: 'post', body: data })
-
         return res.ok ? true : false;
     } catch (err) {
         console.log(err);
